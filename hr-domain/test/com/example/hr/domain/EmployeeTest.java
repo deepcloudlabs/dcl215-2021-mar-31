@@ -3,6 +3,8 @@ package com.example.hr.domain;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Base64;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
@@ -23,7 +25,7 @@ class EmployeeTest {
 				                   .salary(csvMoney, FiatCurrency.valueOf(csvCurrency))
 				                   .department(csvDepartment)
 				                   .birthYear(csvBirthYear)
-				                   .photo(csvPhoto.getBytes())
+				                   .photo(Base64.getDecoder().decode(csvPhoto.getBytes()))
 				                   .jobType(csvJobType)
 				                   .build();
 		// 2. Call Exercise Method
