@@ -2,8 +2,6 @@ package com.example.hr;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.concurrent.TimeUnit;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
@@ -15,6 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.example.hr.application.HrApplication;
 import com.example.hr.boundary.HireEmployeeRequest;
@@ -24,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK, classes = HrMicroserviceApplication.class)
 @DirtiesContext
+@ActiveProfiles("test")
 @EmbeddedKafka(topics = { "hr", "result" }, brokerProperties = { "listeners=PLAINTEXT://localhost:9092", "port=9092" })
 public class HrMicroserviceKafkaControllerTest {
 	@Autowired
@@ -58,7 +58,7 @@ public class HrMicroserviceKafkaControllerTest {
 		var emp = modelMapper.map(request, Employee.class);
 		Mockito.when(hrApp.hireEmployee(emp)).thenReturn(true);
 		kafkaTemplate.send("hr", objectMapper.writeValueAsString(request));
-		TimeUnit.SECONDS.sleep(5);
+		listener.getBarrier().await();
 		assertEquals("success", listener.getResponse().getStatus());
 	}
 }

@@ -25,7 +25,6 @@ public class HrKafkaController { // Consumer + Producer
 
 	@KafkaListener(topics = "hr") // Consumer
 	public void listen(String request) throws Exception {
-		System.err.println("HrKafkaController::listen");
 		HireEmployeeRequest hireEmployeeRequest = objectMapper.readValue(request, HireEmployeeRequest.class);
 		var employee = modelMapper.map(hireEmployeeRequest, Employee.class);
 
