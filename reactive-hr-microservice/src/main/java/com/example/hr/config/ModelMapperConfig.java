@@ -15,7 +15,6 @@ import com.example.hr.domain.FiatCurrency;
 import com.example.hr.domain.FullName;
 import com.example.hr.domain.Money;
 import com.example.hr.domain.TcKimlikNo;
-import com.example.hr.entity.EmployeeEntity;
 
 @Configuration
 public class ModelMapperConfig {
@@ -26,15 +25,6 @@ public class ModelMapperConfig {
 				.salary(hireEmpReq.getSalary(), FiatCurrency.valueOf(hireEmpReq.getCurrency()))
 				.birthYear(hireEmpReq.getBirthYear()).department(hireEmpReq.getDepartment())
 				.jobType(hireEmpReq.getJobType()).photo(Base64.getDecoder().decode(hireEmpReq.getPhoto())).build();
-	};
-
-	private static final Converter<EmployeeEntity, Employee> employeeEntity2EmployeeConverter = context -> {
-		var employoeeEntity = context.getSource();
-		return new Employee.Builder(TcKimlikNo.of(employoeeEntity.getIdentity()))
-				.fullname(employoeeEntity.getFirstName(), employoeeEntity.getLastName()).iban(employoeeEntity.getIban())
-				.salary(employoeeEntity.getSalary(), FiatCurrency.valueOf(employoeeEntity.getCurrency()))
-				.birthYear(employoeeEntity.getBirthYear()).department(employoeeEntity.getDepartment())
-				.jobType(employoeeEntity.getJobType()).photo(employoeeEntity.getPhoto()).build();
 	};
 
 	private static final Converter<EmployeeDocument, Employee> employeeDocument2EmployeeConverter = context -> {
@@ -66,25 +56,6 @@ public class ModelMapperConfig {
 		return fireEmpRes;
 	};
 
-	private static final Converter<Employee, EmployeeEntity> employee2EmployeeEntityConverter = context -> {
-		var employee = context.getSource();
-		var entity = new EmployeeEntity();
-		FullName fullname = employee.getFullname();
-		Money money = employee.getMoney();
-		entity.setIdentity(employee.getIdentity().getValue());
-		entity.setFirstName(fullname.getFirstName());
-		entity.setLastName(fullname.getLastName());
-		entity.setSalary(money.getValue());
-		entity.setCurrency(money.getCurrency().name());
-		entity.setIban(employee.getIban().getValue());
-		entity.setBirthYear(employee.getBirthYear().getValue());
-		entity.setDepartment(employee.getDepartment().name());
-		entity.setJobType(employee.getJobType().name());
-		entity.setPhoto(employee.getPhoto().getData());
-		return entity;
-	};
-
-
 	private static final Converter<Employee, EmployeeDocument> employee2EmployeeDocumentConverter = context -> {
 		var employee = context.getSource();
 		var document = new EmployeeDocument();
@@ -108,8 +79,6 @@ public class ModelMapperConfig {
 		var modelMapper = new ModelMapper();
 		modelMapper.addConverter(hireEmployeeRequest2EmployeeConverter, HireEmployeeRequest.class, Employee.class);
 		modelMapper.addConverter(employee2FireEmployeeResponseConverter, Employee.class, FireEmployeeResponse.class);
-		modelMapper.addConverter(employee2EmployeeEntityConverter, Employee.class, EmployeeEntity.class);
-		modelMapper.addConverter(employeeEntity2EmployeeConverter, EmployeeEntity.class, Employee.class);
 		modelMapper.addConverter(employee2EmployeeDocumentConverter, Employee.class, EmployeeDocument.class);
 		modelMapper.addConverter(employeeDocument2EmployeeConverter, EmployeeDocument.class, Employee.class);
 		return modelMapper;
